@@ -1,0 +1,54 @@
+version: '3'
+output: 'line'
+input: 'passthrough'
+
+tasks:
+  backend-setup:
+    desc: "Setup backend environment"
+    cmds:
+      - cd backend
+      - pip install -r requirements.txt
+
+  backend-run:
+    desc: "Run FastAPI development server"
+    cmds:
+      - cd backend
+      - uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+  celery-run:
+    desc: "Run Celery worker"
+    cmds:
+      - cd backend
+      - celery -A app.tasks.celery_app worker --loglevel=info
+
+  frontend-install:
+    desc: "Install frontend dependencies"
+    cmds:
+      - cd frontend
+      - npm install
+
+  frontend-run:
+    desc: "Run React development server"
+    cmds:
+      - cd frontend
+      - npm start
+
+  docker-build:
+    desc: "Build Docker images"
+    cmds:
+      - docker-compose build
+
+  docker-up:
+    desc: "Start all services with Docker Compose"
+    cmds:
+      - docker-compose up
+
+  docker-down:
+    desc: "Stop all services"
+    cmds:
+      - docker-compose down
+
+  docker-logs:
+    desc: "View Docker logs"
+    cmds:
+      - docker-compose logs -f
