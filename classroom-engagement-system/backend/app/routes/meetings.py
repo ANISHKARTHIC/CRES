@@ -2,11 +2,14 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, WebSocket, WebSo
 from fastapi.responses import JSONResponse
 import os
 import uuid
+import logging
+from pathlib import Path
 from app.config import settings
 from app.models.meeting import SourceType, MeetingAnalysis
-from app.tasks.diarization import analyze_audio_task
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+
+logger = logging.getLogger("uvicorn.error")
 
 
 router = APIRouter()
@@ -30,42 +33,66 @@ async def analyze_meeting(file: UploadFile = File(...), meeting_id: str = None, 
     try:
         if not meeting_id:
             meeting_id = str(uuid.uuid4())
-        
-        # Ensure upload directory exists
-        os.makedirs(settings.upload_dir, exist_ok=True)
-        
-        # Validate file is audio
-        valid_audio_types = {"audio/wav", "audio/mpeg", "audio/mp3", "audio/x-wav"}
-        if file.content_type not in valid_audio_types:
+
+        # Prepare upload directory (absolute path) and ensure it exists
+        upload_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../uploads"))
+        Path(upload_dir).mkdir(parents=True, exist_ok=True)
+
+        # Log incoming upload metadata for debugging
+        logger.info("Incoming upload: filename=%s content_type=%s meeting_id=%s", file.filename, file.content_type, meeting_id)
+
+        # Validate file is audio (accept common variants)
+        valid_audio_types = {
+            "audio/wav",
+            "audio/x-wav",
+            "audio/wave",
+            "audio/vnd.wave",
+            "audio/mpeg",
+            "audio/mp3",
+            "audio/x-mpeg",
+            "audio/x-matroska",
+        }
+
+        if (file.content_type is None) or (file.content_type not in valid_audio_types):
+            logger.warning("Rejected upload due to content_type=%s", file.content_type)
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid file type. Accepted: {valid_audio_types}"
+                detail=f"Invalid file type. Accepted types: {sorted(valid_audio_types)}. Received: {file.content_type}"
             )
-        
-        # Save uploaded file
-        file_extension = os.path.splitext(file.filename)[1]
-        file_path = os.path.join(settings.upload_dir, f"{meeting_id}{file_extension}")
-        
-        with open(file_path, "wb") as f:
+
+        # Save uploaded file safely
+        file_extension = os.path.splitext(file.filename)[1] or ".wav"
+        file_path = os.path.join(upload_dir, f"{meeting_id}{file_extension}")
+
+        try:
             content = await file.read()
-            f.write(content)
-        
-        # Hand off to Celery worker
+            with open(file_path, "wb") as f:
+                f.write(content)
+        except Exception as write_err:
+            logger.exception("Failed to write upload to %s", file_path)
+            raise HTTPException(status_code=500, detail=f"Failed to save uploaded file: {str(write_err)}")
+
+        # Hand off to Celery worker (import locally to avoid circular import)
+        from app.tasks.diarization import analyze_audio_task
+
         task = analyze_audio_task.delay(
             file_path=file_path,
             meeting_id=meeting_id,
             source_type=source_type,
             audio_file_name=file.filename
         )
-        
+
         return JSONResponse({
             "status": "processing",
             "meeting_id": meeting_id,
             "task_id": task.id,
             "message": "Audio analysis started. Check status with task_id"
         })
-    
+
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.exception("Unhandled error in analyze_meeting endpoint")
         raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.4
+
 FROM python:3.10-slim
 
 WORKDIR /app
@@ -11,8 +13,9 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements
 COPY requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies (cache pip downloads with BuildKit)
+RUN --mount=type=cache,id=pycache,target=/root/.cache/pip \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy app code
 COPY . .

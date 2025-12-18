@@ -4,7 +4,8 @@ from app.config import settings
 celery_app = Celery(
     "classroom_engagement",
     broker=settings.celery_broker_url,
-    backend=settings.celery_result_backend
+    backend=settings.celery_result_backend,
+    include=["app.tasks.diarization"]
 )
 
 celery_app.conf.update(
@@ -15,4 +16,4 @@ celery_app.conf.update(
     enable_utc=True,
 )
 
-from app.tasks.diarization import analyze_audio_task
+# Tasks are loaded via the `include` setting above to avoid circular imports.

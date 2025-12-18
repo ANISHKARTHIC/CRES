@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     pyannote_model: str = "pyannote/speaker-diarization-3.1"
     pyannote_segmentation: str = "pyannote/segmentation-3.0"
     
-    # Storage
-    upload_dir: str = os.path.join(os.path.dirname(__file__), "../../uploads")
+    # Storage (place uploads under /app/uploads so they are inside the project directory)
+    upload_dir: str = os.path.abspath(os.path.join(os.path.dirname(__file__), "../uploads"))
     
     class Config:
         env_file = ".env"
