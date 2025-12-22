@@ -17,10 +17,21 @@ const FileUpload = ({ onUploadSuccess }) => {
 
   const validateFile = (f) => {
     const maxSize = 500 * 1024 * 1024; // 500MB
-    const validTypes = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/x-wav', 'audio/wave'];
+    const validTypes = [
+      'audio/wav',
+      'audio/mpeg',
+      'audio/mp3',
+      'audio/x-wav',
+      'audio/wave',
+      // video containers we support (will extract audio server-side)
+      'video/mp4',
+      'video/webm',
+      'video/ogg',
+      'video/x-matroska',
+    ];
     
     if (!f.type || !validTypes.includes(f.type)) {
-      return { valid: false, error: `Invalid format. Supported: WAV, MP3. Got: ${f.type || 'unknown'}` };
+      return { valid: false, error: `Invalid format. Supported: WAV, MP3, MP4 (video) . Got: ${f.type || 'unknown'}` };
     }
     if (f.size > maxSize) {
       return { valid: false, error: `File too large. Max 500MB, got ${(f.size / 1024 / 1024).toFixed(2)}MB` };
@@ -102,17 +113,48 @@ const FileUpload = ({ onUploadSuccess }) => {
         },
       });
 
-      setMessage(`✓ Upload successful! Task ID: ${response.data.task_id}`);
-      setMessageType('success');
+      setMessage(`✓ Upload accepted. Task ID: ${response.data.task_id}. Waiting for analysis...`);
+      setMessageType('info');
+
+      // Clear file input while we poll
       setFile(null);
       setMeetingId('');
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
 
-      if (onUploadSuccess) {
-        onUploadSuccess(response.data);
-      }
+      // Poll task status until it's finished
+      const taskId = response.data.task_id;
+      const pollInterval = 3000;
+
+      const pollTaskStatus = async () => {
+        try {
+          const statusResp = await axios.get(`${API_URL}/task-status/${taskId}`);
+          const status = statusResp.data.status;
+
+          if (status === 'SUCCESS') {
+            setMessage(`✓ Analysis complete (meeting: ${statusResp.data.result?.meeting_id || ''})`);
+            setMessageType('success');
+            if (onUploadSuccess) onUploadSuccess(statusResp.data);
+            return;
+          }
+
+          if (status === 'FAILURE' || status === 'REVOKED') {
+            setMessage(`✗ Analysis failed: ${status}`);
+            setMessageType('error');
+            return;
+          }
+
+          // still processing; schedule next poll
+          setTimeout(pollTaskStatus, pollInterval);
+        } catch (err) {
+          // network or server error while polling
+          console.error('Task polling error:', err);
+          setMessage(`✗ Error while checking task status: ${err.message || 'network error'}`);
+          setMessageType('error');
+        }
+      };
+
+      // start polling
+      setTimeout(pollTaskStatus, pollInterval);
     } catch (error) {
       console.error('Upload error:', error);
       const errorMsg = error.response?.data?.detail || error.message || 'Upload failed';
@@ -193,7 +235,7 @@ const FileUpload = ({ onUploadSuccess }) => {
                 <p className="file-label">
                   {file?.name || 'Drag audio file here or click to browse'}
                 </p>
-                <p className="file-hint">Supported: WAV, MP3 (max 500MB)</p>
+                <p className="file-hint">Supported: WAV, MP3, MP4/WEBM (video) — server will extract audio (max 500MB)</p>
               </div>
             </div>
           </div>

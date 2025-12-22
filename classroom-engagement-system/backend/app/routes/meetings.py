@@ -1,5 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
+import subprocess
+import shutil
 import os
 import uuid
 import logging
@@ -41,8 +43,9 @@ async def analyze_meeting(file: UploadFile = File(...), meeting_id: str = None, 
         # Log incoming upload metadata for debugging
         logger.info("Incoming upload: filename=%s content_type=%s meeting_id=%s", file.filename, file.content_type, meeting_id)
 
-        # Validate file is audio (accept common variants)
-        valid_audio_types = {
+        # Accept audio and common video container types (video will be extracted to audio)
+        valid_upload_types = {
+            # audio
             "audio/wav",
             "audio/x-wav",
             "audio/wave",
@@ -50,14 +53,18 @@ async def analyze_meeting(file: UploadFile = File(...), meeting_id: str = None, 
             "audio/mpeg",
             "audio/mp3",
             "audio/x-mpeg",
-            "audio/x-matroska",
+            # video (we will extract audio using ffmpeg)
+            "video/mp4",
+            "video/webm",
+            "video/ogg",
+            "video/x-matroska",
         }
 
-        if (file.content_type is None) or (file.content_type not in valid_audio_types):
+        if (file.content_type is None) or (file.content_type not in valid_upload_types):
             logger.warning("Rejected upload due to content_type=%s", file.content_type)
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid file type. Accepted types: {sorted(valid_audio_types)}. Received: {file.content_type}"
+                detail=f"Invalid file type. Accepted types: {sorted(valid_upload_types)}. Received: {file.content_type}"
             )
 
         # Save uploaded file safely
@@ -71,6 +78,43 @@ async def analyze_meeting(file: UploadFile = File(...), meeting_id: str = None, 
         except Exception as write_err:
             logger.exception("Failed to write upload to %s", file_path)
             raise HTTPException(status_code=500, detail=f"Failed to save uploaded file: {str(write_err)}")
+
+        # If a video was uploaded, extract audio to a WAV file using ffmpeg
+        if file.content_type.startswith("video/"):
+            audio_path = os.path.splitext(file_path)[0] + ".wav"
+
+            # Ensure ffmpeg is available
+            if not shutil.which("ffmpeg"):
+                logger.error("ffmpeg not found in container PATH")
+                raise HTTPException(status_code=500, detail="Server missing ffmpeg to extract audio from video")
+
+            try:
+                logger.info("Extracting audio from video %s to %s", file_path, audio_path)
+                # Convert to mono 16kHz WAV which the diarization expects
+                subprocess.run([
+                    "ffmpeg",
+                    "-y",
+                    "-i",
+                    file_path,
+                    "-ar",
+                    "16000",
+                    "-ac",
+                    "1",
+                    audio_path
+                ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                # remove original video to save space
+                try:
+                    os.remove(file_path)
+                except Exception:
+                    logger.warning("Could not remove original uploaded video: %s", file_path)
+
+                # set file_path to the extracted audio for downstream processing
+                file_path = audio_path
+
+            except subprocess.CalledProcessError as ff_err:
+                logger.exception("ffmpeg failed to extract audio: %s", ff_err)
+                raise HTTPException(status_code=500, detail="Failed to extract audio from uploaded video")
 
         # Hand off to Celery worker (import locally to avoid circular import)
         from app.tasks.diarization import analyze_audio_task
@@ -110,7 +154,11 @@ async def get_analysis(meeting_id: str):
         
         # Convert ObjectId to string
         analysis["_id"] = str(analysis["_id"])
-        
+
+        # Convert datetime fields to ISO strings for JSON
+        if "created_at" in analysis and hasattr(analysis["created_at"], "isoformat"):
+            analysis["created_at"] = analysis["created_at"].isoformat()
+
         return JSONResponse({
             "status": "success",
             "data": analysis
@@ -202,10 +250,11 @@ async def get_all_analyses(limit: int = 50):
     try:
         analyses = list(meetings_collection.find().sort("created_at", -1).limit(limit))
         
-        # Convert ObjectIds to strings
         for analysis in analyses:
             analysis["_id"] = str(analysis["_id"])
-        
+            if "created_at" in analysis and hasattr(analysis["created_at"], "isoformat"):
+                analysis["created_at"] = analysis["created_at"].isoformat()
+
         return JSONResponse({
             "status": "success",
             "count": len(analyses),

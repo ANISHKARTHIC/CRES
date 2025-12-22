@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
@@ -13,12 +13,7 @@ const MeetingDashboard = () => {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
-  // Fetch all analyses on mount
-  useEffect(() => {
-    fetchAnalyses();
-  }, []);
-
-  const fetchAnalyses = async () => {
+  const fetchAnalyses = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/all-analyses`);
@@ -30,7 +25,12 @@ const MeetingDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL]);
+
+  // Fetch all analyses on mount
+  useEffect(() => {
+    fetchAnalyses();
+  }, [fetchAnalyses]);
 
   const loadMeetingAnalysis = (meeting) => {
     setSelectedMeeting(meeting);
