@@ -263,3 +263,41 @@ async def get_all_analyses(limit: int = 50):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/analysis-report/{meeting_id}")
+async def get_analysis_report(meeting_id: str):
+    """
+    Generate a comprehensive analysis report for a meeting
+    """
+    try:
+        from app.tasks.report_generator import AnalysisReportGenerator
+        
+        # Get analysis from database
+        analysis = meetings_collection.find_one({"meeting_id": meeting_id})
+        
+        if not analysis:
+            raise HTTPException(status_code=404, detail="Analysis not found")
+        
+        # Remove MongoDB _id and convert datetime
+        if "_id" in analysis:
+            del analysis["_id"]
+        if "created_at" in analysis and hasattr(analysis["created_at"], "isoformat"):
+            analysis["created_at"] = analysis["created_at"].isoformat()
+        
+        # Generate report
+        report_generator = AnalysisReportGenerator()
+        report_text = report_generator.generate_full_report(analysis)
+        
+        return JSONResponse({
+            "status": "success",
+            "meeting_id": meeting_id,
+            "report": report_text
+        })
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Error generating report")
+        raise HTTPException(status_code=500, detail=str(e))
+

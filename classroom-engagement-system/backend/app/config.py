@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # MongoDB
     mongodb_url: str = os.getenv(
         "MONGODB_URL",
-        "mongodb://root:rootpassword@localhost:27017/classroom?authSource=admin"
+        "mongodb://localhost:27017/classroom"
     )
     db_name: str = "classroom"
     

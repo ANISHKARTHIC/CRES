@@ -73,28 +73,78 @@ classroom-engagement-system/
 ## Setup & Installation
 
 ### Prerequisites
+
+**For Docker Deployment:**
 - Docker and Docker Compose
-- Node.js 18+ (for local development)
-- Python 3.10+ (for local development)
 
-### Using Docker Compose (Recommended)
+**For Local Development:**
+- Python 3.10+
+- Node.js 18+
+- MongoDB 5.0+
+- Redis 6.0+
 
-1. Clone the repository
+### Quick Start Options
+
+#### Option 1: Using Docker Compose (Recommended for Production)
+
 ```bash
+# Clone the repository
 cd classroom-engagement-system
-```
 
-2. Build and run all services
-```bash
+# Build and run all services
 docker-compose up --build
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000
+# API Docs: http://localhost:8000/docs
 ```
 
-3. Access the application
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+#### Option 2: Local Development (Linux/macOS)
 
-### Local Development Setup
+```bash
+# Clone the repository
+cd classroom-engagement-system
+
+# Run the automated setup script
+bash start-local.sh
+
+# In Terminal 1: Start backend
+cd backend && source venv/bin/activate
+python -m uvicorn app.main:app --reload --port 8000
+
+# In Terminal 2: Start frontend
+cd frontend && npm start
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000
+```
+
+#### Option 3: Local Development (Windows)
+
+```bash
+# Clone the repository
+cd classroom-engagement-system
+
+# Run the setup script
+start-local.bat
+
+# In Terminal 1: Start backend
+cd backend
+venv\Scripts\activate.bat
+python -m uvicorn app.main:app --reload --port 8000
+
+# In Terminal 2: Start frontend
+cd frontend
+npm start
+
+# Access the application
+# Frontend: http://localhost:3000
+# Backend API: http://localhost:8000
+```
+
+### Detailed Local Development Setup
 
 #### Backend Setup
 ```bash
