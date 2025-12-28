@@ -4,7 +4,6 @@ import FileUpload from '../components/FileUpload';
 import EnhancedDashboard from '../components/EnhancedDashboard';
 
 import logo from '../assets/col-kitelogo-removebg-preview2.jpg';
-import pyExpoLogo from '../assets/PyExpoLogo.svg';
 import techCommunityLogo from '../assets/ips.webp';
 
 const Template = () => {
@@ -57,7 +56,6 @@ const Template = () => {
 
               <div className="flex items-center space-x-4">
                 <div className="bg-white p-3 rounded-lg shadow-md border border-blue-100">
-                  <img src={pyExpoLogo} alt="Logo" className="h-12 w-auto object-contain" />
                 </div>
                 <div className="bg-white p-3 rounded-lg shadow-md border border-blue-100">
                   <img src={techCommunityLogo} alt="Logo" className="h-12 w-auto object-contain" />
