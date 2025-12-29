@@ -4,7 +4,6 @@ import FileUpload from '../components/FileUpload';
 import EnhancedDashboard from '../components/EnhancedDashboard';
 
 import logo from '../assets/col-kitelogo-removebg-preview2.jpg';
-import pyExpoLogo from '../assets/PyExpoLogo.svg';
 import techCommunityLogo from '../assets/ips.webp';
 
 const Template = () => {
@@ -57,10 +56,7 @@ const Template = () => {
 
               <div className="flex items-center space-x-4">
                 <div className="bg-white p-3 rounded-lg shadow-md border border-blue-100">
-                  <img src={pyExpoLogo} alt="Logo" className="h-12 w-auto object-contain" />
-                </div>
-                <div className="bg-white p-3 rounded-lg shadow-md border border-blue-100">
-                  <img src={techCommunityLogo} alt="Logo" className="h-12 w-auto object-contain" />
+                  <img src={techCommunityLogo} alt="Logo" className="h-16 w-auto object-contain" />
                 </div>
               </div>
             </div>
@@ -81,13 +77,15 @@ const Template = () => {
 
         <footer className="mt-12">
           <div className="bg-white rounded-2xl shadow-xl p-6">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="flex items-center mb-4 md:mb-0">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex items-center">
                 <span className="text-blue-600 font-mono text-xl mr-2">&lt;/&gt;</span>
                 <h3 className="text-lg font-bold text-slate-800 tracking-tight">Classroom Engagement System v2.0</h3>
               </div>
-
-              <p className="text-gray-600 text-sm">© {new Date().getFullYear()} Advanced Meeting Analytics Platform</p>
+              <div className="flex items-center gap-3">
+                <p className="text-gray-600 text-sm">© {new Date().getFullYear()} Powered by IPS Tech Community</p>
+                <img src={techCommunityLogo} alt="IPS Tech Community Logo" className="h-9 w-auto object-contain" />
+              </div>
             </div>
           </div>
         </footer>
@@ -97,3 +95,4 @@ const Template = () => {
 };
 
 export default Template;
+
