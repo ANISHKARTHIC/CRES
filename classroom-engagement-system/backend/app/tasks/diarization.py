@@ -264,7 +264,15 @@ class DiarizationService:
                 speaker_analysis[speaker_id].turn_count += 1
         
         # Generate insights and recommendations
-        insights = filler_summary.get('filler_ranking', [])
+        insights = []
+        
+        # Convert filler_ranking dictionaries to strings
+        for filler_insight in filler_summary.get('filler_ranking', []):
+            speaker_id = filler_insight.get('speaker_id', 'Unknown')
+            total_fillers = filler_insight.get('total_fillers', 0)
+            filler_ratio = filler_insight.get('filler_ratio', 0)
+            insights.append(f"{speaker_id}: {total_fillers} filler words ({filler_ratio}%)")
+        
         insights.extend(pause_summary.get('insights', []))
         insights.extend(sentiment_summary.get('insights', []))
         
