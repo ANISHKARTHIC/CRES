@@ -85,7 +85,7 @@ const Template = () => {
                 <h3 className="text-lg font-bold text-slate-800 tracking-tight">Classroom Engagement System v2.0</h3>
               </div>
 
-              <p className="text-gray-600 text-sm">© {new Date().getFullYear()} Advanced Meeting Analytics Platform</p>
+              <p className="text-gray-600 text-sm">© {new Date().getFullYear()} Powered by IPS</p>
             </div>
           </div>
         </footer>
@@ -95,3 +95,4 @@ const Template = () => {
 };
 
 export default Template;
+
