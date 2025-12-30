@@ -69,7 +69,8 @@ class SpeechToTextService:
         speaker_segments: List[Dict]
     ) -> List[Dict]:
         """
-        Match transcription segments to speaker diarization segments
+        Enhanced multi-speaker transcript matching algorithm
+        Handles multiple speakers by finding best temporal overlap
         
         Args:
             transcript_segments: List of transcript segments with timestamps
@@ -79,32 +80,62 @@ class SpeechToTextService:
             List of speaker segments with matched transcription
         """
         matched_segments = []
+        transcript_segments_copy = transcript_segments.copy()
         
         for speaker_seg in speaker_segments:
             speaker_start = speaker_seg.get('start', 0)
             speaker_end = speaker_seg.get('end', 0)
             speaker_id = speaker_seg.get('speaker_id', 'Unknown')
+            speaker_duration = speaker_end - speaker_start
             
-            # Find overlapping transcript segments
-            matching_text = []
-            for trans_seg in transcript_segments:
+            # Find transcription segments with best temporal overlap
+            matching_texts = []
+            matched_trans_indices = []
+            
+            for trans_idx, trans_seg in enumerate(transcript_segments):
                 trans_start = trans_seg.get('start', 0)
                 trans_end = trans_seg.get('end', 0)
                 trans_text = trans_seg.get('text', '').strip()
                 
-                # Check if there's overlap
-                if trans_start < speaker_end and trans_end > speaker_start:
-                    if trans_text:
-                        matching_text.append(trans_text)
+                # Calculate overlap percentage
+                overlap_start = max(speaker_start, trans_start)
+                overlap_end = min(speaker_end, trans_end)
+                
+                if overlap_end > overlap_start:  # There is overlap
+                    overlap_duration = overlap_end - overlap_start
+                    overlap_percentage = (overlap_duration / speaker_duration * 100) if speaker_duration > 0 else 0
+                    
+                    # Accept if at least 50% overlap
+                    if overlap_percentage > 50 and trans_text:
+                        matching_texts.append(trans_text)
+                        matched_trans_indices.append(trans_idx)
             
-            # Combine matching text
-            full_text = ' '.join(matching_text)
+            # Combine matching text - prioritize contiguous segments
+            if matching_texts:
+                full_text = ' '.join(matching_texts)
+            else:
+                # Fallback: find closest transcript segment
+                closest_dist = float('inf')
+                closest_text = ''
+                
+                for trans_seg in transcript_segments:
+                    trans_start = trans_seg.get('start', 0)
+                    trans_end = trans_seg.get('end', 0)
+                    
+                    # Distance to segment
+                    distance = abs(speaker_start - trans_start)
+                    
+                    if distance < closest_dist:
+                        closest_dist = distance
+                        closest_text = trans_seg.get('text', '').strip()
+                
+                full_text = closest_text
             
             matched_segments.append({
                 'speaker_id': speaker_id,
                 'start': speaker_start,
                 'end': speaker_end,
-                'duration': speaker_end - speaker_start,
+                'duration': speaker_duration,
                 'transcript': full_text,
                 'word_count': len(full_text.split()) if full_text else 0
             })

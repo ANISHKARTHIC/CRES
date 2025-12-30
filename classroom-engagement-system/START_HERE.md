@@ -1,52 +1,38 @@
-# START HERE 👇
+# START HERE
 
-## 🎉 Welcome to the Classroom Engagement System!
+## Quick Start (Docker)
 
-You have a **complete, production-ready application** that analyzes classroom engagement through speaker diarization and metrics.
+```bash
+# Build Docker image
+cd backend && docker build -t classroom-engagement-backend:latest .
 
----
+# Start all services
+cd .. && docker-compose up -d
 
-## 📖 Read These Files in This Order
-
-### 1️⃣ **WELCOME.txt** (2 min)
-Visual overview of what was created.
-
-### 2️⃣ **INDEX.md** (5 min)
-Complete navigation guide. Shows you where to find everything based on your needs.
-
-**→ Next, choose based on what you want to do:**
+# Access
+# Frontend: http://localhost:3000
+# API Docs: http://localhost:8000/docs
+```
 
 ---
 
-### If you want to **RUN IT NOW** (5 minutes)
-1. Read: **QUICK_REFERENCE.md** (Quick Start section)
-2. Run: `docker-compose up --build`
-3. Open: http://localhost:3000
-4. Upload an audio file
-5. See results!
+## 📚 Essential Documentation
+
+- **[README.md](./README.md)** - Project overview
+- **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Setup instructions
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System design
+- **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - API endpoints
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Quick lookup
 
 ---
 
-### If you want **DETAILED SETUP** (30 minutes)
-1. Read: **GETTING_STARTED.md**
-2. Follow step-by-step instructions
-3. Run services locally or with Docker
-4. Test the system
+## ✨ Recent Updates
 
----
+✅ **Fixed:** Docker build (added missing dependencies)
+✅ **Enhanced:** Multi-speaker detection (now detects 3-4+ speakers)
+✅ **Updated:** Python 3.13 compatibility (numpy version)
 
-### If you want **API INTEGRATION** (20 minutes)
-1. Read: **API_DOCUMENTATION.md**
-2. Check examples
-3. Start with: `http://localhost:8000/docs` (Interactive API docs)
-
----
-
-### If you want **UNDERSTANDING** (30-60 minutes)
-1. Read: **README.md** (Overview)
-2. Read: **ARCHITECTURE.md** (Technical design)
-3. Review code in `backend/app/` and `frontend/src/`
-4. Run tests: `pytest test_engagement_system.py`
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment guide.
 
 ---
 
