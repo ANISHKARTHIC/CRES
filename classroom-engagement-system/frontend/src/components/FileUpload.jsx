@@ -170,7 +170,7 @@ const FileUpload = ({ onUploadSuccess }) => {
     <div className="upload-container">
       <div className="upload-card">
         <div className="upload-header">
-          <h2>📤 Upload Meeting Recording</h2>
+          <h2>Upload Meeting Recording</h2>
           <p className="subtitle">Analyze speaker engagement and turn-taking patterns</p>
         </div>
         
@@ -196,8 +196,8 @@ const FileUpload = ({ onUploadSuccess }) => {
                 onChange={(e) => setSourceType(e.target.value)}
                 className="select-field"
               >
-                <option value="teams">👔 Teams Meeting</option>
-                <option value="live">📚 Live Class</option>
+                <option value="teams">Teams Meeting</option>
+                <option value="live">Live Class</option>
               </select>
             </div>
 
@@ -231,7 +231,7 @@ const FileUpload = ({ onUploadSuccess }) => {
                 style={{ display: 'none' }}
               />
               <div className="file-input-content">
-                <div className="file-icon">🎵</div>
+                <div className="file-icon"></div>
                 <p className="file-label">
                   {file?.name || 'Drag audio file here or click to browse'}
                 </p>
@@ -254,7 +254,7 @@ const FileUpload = ({ onUploadSuccess }) => {
             disabled={!file || uploading}
             className="upload-btn"
           >
-            {uploading ? `⏳ Uploading (${uploadProgress}%)...` : '🚀 Upload & Analyze'}
+            {uploading ? `Uploading (${uploadProgress}%)...` : 'Upload & Analyze'}
           </button>
         </form>
 

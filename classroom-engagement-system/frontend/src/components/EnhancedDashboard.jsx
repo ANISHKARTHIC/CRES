@@ -25,9 +25,9 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
 
   const getSentimentEmoji = (sentiment) => {
     switch (sentiment) {
-      case 'positive': return '😊';
-      case 'negative': return '😞';
-      default: return '😐';
+      case 'positive': return '';
+      case 'negative': return '';
+      default: return '';
     }
   };
 
@@ -42,7 +42,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
     return (
       <div className="dashboard-container">
         <div className="meetings-list">
-          <h2>📊 Recorded Meetings</h2>
+          <h2>Recorded Meetings</h2>
           {loading ? (
             <div className="loading">Loading meetings...</div>
           ) : meetingData && meetingData.length > 0 ? (
@@ -59,8 +59,8 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
                   </span>
                 </div>
                 <div className="meeting-meta">
-                  <span>⏱️ {formatTime(meeting.duration)}</span>
-                  <span>👥 {Object.keys(meeting.speaker_participation || {}).length} speakers</span>
+                  <span>{formatTime(meeting.duration)}</span>
+                  <span>{Object.keys(meeting.speaker_participation || {}).length} speakers</span>
                   <span>{getSentimentEmoji(meeting.overall_sentiment)} {meeting.overall_sentiment}</span>
                 </div>
               </div>
@@ -105,7 +105,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
           <div className="overview-grid">
             {/* Main Metrics */}
             <div className="metric-card primary">
-              <div className="metric-icon">📈</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Engagement Score</div>
                 <div className="metric-value" style={{ color: getEngagementColor(selectedMeeting.engagement_score) }}>
@@ -115,7 +115,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon">⏱️</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Meeting Duration</div>
                 <div className="metric-value">{formatTime(selectedMeeting.duration)}</div>
@@ -123,7 +123,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon">🔄</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Turn-Taking Frequency</div>
                 <div className="metric-value">{selectedMeeting.turn_taking_frequency?.toFixed(2)} per min</div>
@@ -139,7 +139,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon">😤</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Total Fillers Used</div>
                 <div className="metric-value">{selectedMeeting.total_filler_count || 0}</div>
@@ -147,7 +147,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon">🤐</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Total Silence Time</div>
                 <div className="metric-value">{formatTime(selectedMeeting.total_silence_time)}</div>
@@ -192,7 +192,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
           {/* Insights */}
           {selectedMeeting.analysis_insights && selectedMeeting.analysis_insights.length > 0 && (
             <div className="insights-section">
-              <h3>🔍 Key Insights</h3>
+              <h3>Key Insights</h3>
               <ul className="insights-list">
                 {selectedMeeting.analysis_insights.slice(0, 5).map((insight, idx) => (
                   <li key={idx}>{insight}</li>
@@ -204,7 +204,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
           {/* Recommendations */}
           {selectedMeeting.recommendations && selectedMeeting.recommendations.length > 0 && (
             <div className="recommendations-section">
-              <h3>💡 Recommendations</h3>
+              <h3>Recommendations</h3>
               <ul className="recommendations-list">
                 {selectedMeeting.recommendations.slice(0, 5).map((rec, idx) => (
                   <li key={idx}>{rec}</li>
@@ -223,8 +223,8 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
               <div className="speaker-header" onClick={() => setExpandedSpeaker(expandedSpeaker === speakerId ? null : speakerId)}>
                 <h3>{speakerId}</h3>
                 <div className="speaker-quick-stats">
-                  <span>🎤 {formatTime(analysis.talk_time)}</span>
-                  <span>📊 {analysis.participation_percentage?.toFixed(1)}%</span>
+                  <span>{formatTime(analysis.talk_time)}</span>
+                  <span>{analysis.participation_percentage?.toFixed(1)}%</span>
                   <span>{getSentimentEmoji(analysis.sentiment_label)} {analysis.engagement_from_sentiment?.toFixed(0)}/100</span>
                 </div>
               </div>
@@ -322,7 +322,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
         <div className="tab-content silence">
           <div className="metrics-row">
             <div className="metric-card">
-              <div className="metric-icon">🤐</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Total Silence</div>
                 <div className="metric-value">{formatTime(selectedMeeting.total_silence_time)}</div>
@@ -361,7 +361,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon">📊</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Average Polarity</div>
                 <div className="metric-value">{selectedMeeting.average_polarity?.toFixed(2)}</div>
@@ -369,7 +369,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon">🎭</div>
+              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Emotional Tone</div>
                 <div className="metric-value">{selectedMeeting.emotional_tone}</div>
