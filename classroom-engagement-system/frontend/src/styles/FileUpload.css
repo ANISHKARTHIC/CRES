@@ -1,22 +1,19 @@
 .upload-container {
-  padding: 40px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: #f8fafc; /* soft slate background */
+  padding: 32px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
 }
 
+
 .upload-card {
-  max-width: 600px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px;
   width: 100%;
-  background: white;
-  border-radius: 16px;
-  padding: 48px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.5s ease-out;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
+
 
 @keyframes slideUp {
   from {

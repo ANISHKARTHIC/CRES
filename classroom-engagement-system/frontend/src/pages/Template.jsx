@@ -37,9 +37,9 @@ const Template = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-200 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-100 rounded-2xl shadow-lg mb-8 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg mb-8 overflow-hidden">
           <div className="relative">
             <div className="h-2 bg-gradient-to-r from-blue-500 via-indigo-800 to-blue-900"></div>
 
@@ -63,13 +63,13 @@ const Template = () => {
           </div>
         </div>
 
-        <div className="shadow-xl rounded-2xl overflow-hidden">
+        <div className="shadow-xl rounded-2xl overflow-hidden bg-white">
           <div className="bg-gradient-to-r from-sky-900 to-blue-700 px-8 py-6">
             <h1 className="text-white text-3xl font-bold tracking-tight">Enhanced Meeting Analysis</h1>
             <p className="text-blue-50 text-sm mt-1">Upload Teams meeting videos/audio and get comprehensive engagement analysis with AI-powered insights</p>
           </div>
 
-          <div className="px-6 sm:px-8 py-8 space-y-8 bg-gradient-to-br from-blue-50 to-sky-50">
+          <div className="px-6 sm:px-8 py-8 space-y-8 bg-white">
             <FileUpload onUploadSuccess={handleUploadSuccess} />
             <EnhancedDashboard meetingData={meetingData} loading={loading} />
           </div>
