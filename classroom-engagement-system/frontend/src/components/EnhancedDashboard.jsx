@@ -14,7 +14,7 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
 
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
-  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+  const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#6366F1', '#8B5CF6'];
 
   const getEngagementColor = (score) => {
     if (score >= 80) return '#10B981'; // Green
@@ -23,11 +23,11 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
     return '#DC2626'; // Dark Red
   };
 
-  const getSentimentEmoji = (sentiment) => {
+  const getSentimentColor = (sentiment) => {
     switch (sentiment) {
-      case 'positive': return '';
-      case 'negative': return '';
-      default: return '';
+      case 'positive': return '#10B981';
+      case 'negative': return '#EF4444';
+      default: return '#6B7280';
     }
   };
 
@@ -59,9 +59,15 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
                   </span>
                 </div>
                 <div className="meeting-meta">
-                  <span>{formatTime(meeting.duration)}</span>
-                  <span>{Object.keys(meeting.speaker_participation || {}).length} speakers</span>
-                  <span>{getSentimentEmoji(meeting.overall_sentiment)} {meeting.overall_sentiment}</span>
+                  <span className="meta-item">
+                    <strong>Duration:</strong> {formatTime(meeting.duration)}
+                  </span>
+                  <span className="meta-item">
+                    <strong>Speakers:</strong> {Object.keys(meeting.speaker_participation || {}).length}
+                  </span>
+                  <span className="meta-item" style={{ color: getSentimentColor(meeting.overall_sentiment) }}>
+                    <strong>Sentiment:</strong> {meeting.overall_sentiment?.toUpperCase()}
+                  </span>
                 </div>
               </div>
             ))
@@ -105,52 +111,54 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
           <div className="overview-grid">
             {/* Main Metrics */}
             <div className="metric-card primary">
-              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Engagement Score</div>
-                <div className="metric-value" style={{ color: getEngagementColor(selectedMeeting.engagement_score) }}>
+                <div className="metric-value" style={{ color: 'white' }}>
                   {selectedMeeting.engagement_score?.toFixed(1)}/100
                 </div>
+                <div className="metric-description">Overall classroom engagement level</div>
               </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Meeting Duration</div>
                 <div className="metric-value">{formatTime(selectedMeeting.duration)}</div>
+                <div className="metric-description">Total session time</div>
               </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Turn-Taking Frequency</div>
-                <div className="metric-value">{selectedMeeting.turn_taking_frequency?.toFixed(2)} per min</div>
+                <div className="metric-value">{selectedMeeting.turn_taking_frequency?.toFixed(2)}</div>
+                <div className="metric-description">Turns per minute</div>
               </div>
             </div>
 
-            <div className="metric-card">
-              <div className="metric-icon">{getSentimentEmoji(selectedMeeting.overall_sentiment)}</div>
+            <div className="metric-card" style={{ borderLeftColor: getSentimentColor(selectedMeeting.overall_sentiment) }}>
               <div className="metric-content">
                 <div className="metric-label">Overall Sentiment</div>
-                <div className="metric-value">{selectedMeeting.overall_sentiment?.toUpperCase()}</div>
+                <div className="metric-value" style={{ color: getSentimentColor(selectedMeeting.overall_sentiment) }}>
+                  {selectedMeeting.overall_sentiment?.toUpperCase()}
+                </div>
+                <div className="metric-description">Class emotional tone</div>
               </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon"></div>
               <div className="metric-content">
-                <div className="metric-label">Total Fillers Used</div>
+                <div className="metric-label">Total Fillers</div>
                 <div className="metric-value">{selectedMeeting.total_filler_count || 0}</div>
+                <div className="metric-description">Filler words detected</div>
               </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon"></div>
               <div className="metric-content">
-                <div className="metric-label">Total Silence Time</div>
+                <div className="metric-label">Silence Time</div>
                 <div className="metric-value">{formatTime(selectedMeeting.total_silence_time)}</div>
+                <div className="metric-description">Total quiet periods</div>
               </div>
             </div>
           </div>
@@ -195,7 +203,10 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
               <h3>Key Insights</h3>
               <ul className="insights-list">
                 {selectedMeeting.analysis_insights.slice(0, 5).map((insight, idx) => (
-                  <li key={idx}>{insight}</li>
+                  <li key={idx}>
+                    <span className="insight-number">{idx + 1}</span>
+                    <span className="insight-text">{insight}</span>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -207,7 +218,10 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
               <h3>Recommendations</h3>
               <ul className="recommendations-list">
                 {selectedMeeting.recommendations.slice(0, 5).map((rec, idx) => (
-                  <li key={idx}>{rec}</li>
+                  <li key={idx}>
+                    <span className="rec-number">{idx + 1}</span>
+                    <span className="rec-text">{rec}</span>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -223,9 +237,11 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
               <div className="speaker-header" onClick={() => setExpandedSpeaker(expandedSpeaker === speakerId ? null : speakerId)}>
                 <h3>{speakerId}</h3>
                 <div className="speaker-quick-stats">
-                  <span>{formatTime(analysis.talk_time)}</span>
-                  <span>{analysis.participation_percentage?.toFixed(1)}%</span>
-                  <span>{getSentimentEmoji(analysis.sentiment_label)} {analysis.engagement_from_sentiment?.toFixed(0)}/100</span>
+                  <span className="stat-badge"><strong>Time:</strong> {formatTime(analysis.talk_time)}</span>
+                  <span className="stat-badge"><strong>Share:</strong> {analysis.participation_percentage?.toFixed(1)}%</span>
+                  <span className="stat-badge" style={{ background: getSentimentColor(analysis.sentiment_label) }}>
+                    <strong>Engagement:</strong> {analysis.engagement_from_sentiment?.toFixed(0)}/100
+                  </span>
                 </div>
               </div>
 
@@ -322,10 +338,10 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
         <div className="tab-content silence">
           <div className="metrics-row">
             <div className="metric-card">
-              <div className="metric-icon"></div>
               <div className="metric-content">
-                <div className="metric-label">Total Silence</div>
+                <div className="metric-label">Total Silence Duration</div>
                 <div className="metric-value">{formatTime(selectedMeeting.total_silence_time)}</div>
+                <div className="metric-description">Cumulative pause time</div>
               </div>
             </div>
           </div>
@@ -352,27 +368,29 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
       {activeTab === 'sentiment' && (
         <div className="tab-content sentiment">
           <div className="sentiment-overview">
-            <div className="metric-card">
-              <div className="metric-icon">{getSentimentEmoji(selectedMeeting.overall_sentiment)}</div>
+            <div className="metric-card" style={{ borderLeftColor: getSentimentColor(selectedMeeting.overall_sentiment) }}>
               <div className="metric-content">
                 <div className="metric-label">Overall Sentiment</div>
-                <div className="metric-value">{selectedMeeting.overall_sentiment?.toUpperCase()}</div>
+                <div className="metric-value" style={{ color: getSentimentColor(selectedMeeting.overall_sentiment) }}>
+                  {selectedMeeting.overall_sentiment?.toUpperCase()}
+                </div>
+                <div className="metric-description">Aggregate emotional state</div>
               </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Average Polarity</div>
                 <div className="metric-value">{selectedMeeting.average_polarity?.toFixed(2)}</div>
+                <div className="metric-description">Scale: -1 (negative) to +1 (positive)</div>
               </div>
             </div>
 
             <div className="metric-card">
-              <div className="metric-icon"></div>
               <div className="metric-content">
                 <div className="metric-label">Emotional Tone</div>
-                <div className="metric-value">{selectedMeeting.emotional_tone}</div>
+                <div className="metric-value emotional-tone-text">{selectedMeeting.emotional_tone}</div>
+                <div className="metric-description">Detected mood patterns</div>
               </div>
             </div>
           </div>
@@ -381,13 +399,13 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
             <div className="speaker-sentiment">
               <h3>Sentiment by Speaker</h3>
               {Object.entries(speakerAnalysis).map(([speakerId, analysis]) => (
-                <div key={speakerId} className="speaker-sentiment-card">
+                <div key={speakerId} className="speaker-sentiment-card" style={{ borderLeftColor: getSentimentColor(analysis.sentiment_label) }}>
                   <h4>{speakerId}</h4>
                   <div className="sentiment-details">
-                    <span>Sentiment: {analysis.sentiment_label?.toUpperCase()} {getSentimentEmoji(analysis.sentiment_label)}</span>
-                    <span>Polarity: {analysis.sentiment_polarity?.toFixed(2)}</span>
-                    <span>Emotion: {analysis.dominant_emotion}</span>
-                    <span>Engagement: {analysis.engagement_from_sentiment?.toFixed(0)}/100</span>
+                    <span><strong>Sentiment:</strong> <span style={{ color: getSentimentColor(analysis.sentiment_label) }}>{analysis.sentiment_label?.toUpperCase()}</span></span>
+                    <span><strong>Polarity:</strong> {analysis.sentiment_polarity?.toFixed(2)}</span>
+                    <span><strong>Emotion:</strong> {analysis.dominant_emotion}</span>
+                    <span><strong>Engagement:</strong> {analysis.engagement_from_sentiment?.toFixed(0)}/100</span>
                   </div>
                 </div>
               ))}
