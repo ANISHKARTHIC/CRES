@@ -165,32 +165,81 @@ const EnhancedDashboard = ({ meetingData, loading }) => {
 
           {/* Charts */}
           <div className="charts-grid">
-            <div className="chart-container">
-              <h3>Participation Distribution</h3>
+            <div className="chart-container participation-section">
+              <div className="chart-header">
+                <h3>Participation Distribution</h3>
+                <span className="chart-subtitle">Speaker engagement breakdown</span>
+              </div>
               {participationData.length > 0 && (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie data={participationData} cx="50%" cy="50%" labelLine={false} label={({ name, value }) => `${name}: ${value}%`} outerRadius={80} fill="#8884d8" dataKey="value">
-                      {participationData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <PieChart>
+                      <Pie 
+                        data={participationData} 
+                        cx="45%" 
+                        cy="50%" 
+                        labelLine={true}
+                        label={({ name, value }) => `${name}: ${value}%`}
+                        outerRadius={100} 
+                        innerRadius={50}
+                        fill="#8884d8" 
+                        dataKey="value"
+                        paddingAngle={2}
+                      >
+                        {participationData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value) => `${value}%`}
+                        contentStyle={{ background: '#fff', border: '1px solid #ccc', borderRadius: '8px' }}
+                      />
+                      <Legend verticalAlign="bottom" height={36} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  
+                  <div className="participation-bars">
+                    <h4>Participation Details</h4>
+                    {participationData
+                      .sort((a, b) => b.value - a.value)
+                      .map((item, index) => (
+                        <div key={item.name} className="participation-bar-item">
+                          <div className="participation-bar-label">
+                            <span className="bar-name">{item.name}</span>
+                            <span className="bar-percentage">{item.value}%</span>
+                          </div>
+                          <div className="participation-bar-container">
+                            <div 
+                              className="participation-bar-fill"
+                              style={{
+                                width: `${item.value}%`,
+                                backgroundColor: COLORS[index % COLORS.length]
+                              }}
+                            ></div>
+                          </div>
+                        </div>
                       ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `${value}%`} />
-                  </PieChart>
-                </ResponsiveContainer>
+                  </div>
+                </>
               )}
             </div>
 
             <div className="chart-container">
-              <h3>Top Filler Words</h3>
+              <div className="chart-header">
+                <h3>Top Filler Words</h3>
+                <span className="chart-subtitle">Most frequent filler words</span>
+              </div>
               {fillerData.length > 0 && (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={fillerData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#EF4444" />
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={fillerData} layout="vertical" margin={{ top: 5, right: 30, left: 100, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={90} />
+                    <Tooltip 
+                      contentStyle={{ background: '#fff', border: '1px solid #ccc', borderRadius: '8px' }}
+                      cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
+                    />
+                    <Bar dataKey="count" fill="#6366F1" radius={[0, 8, 8, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}
